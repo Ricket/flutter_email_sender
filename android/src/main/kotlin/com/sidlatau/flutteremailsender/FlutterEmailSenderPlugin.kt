@@ -1,6 +1,7 @@
 package com.sidlatau.flutteremailsender
 
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.FileProvider
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -8,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import org.json.JSONArray
 import java.io.File
 
 private const val SUBJECT = "subject"
@@ -16,6 +18,7 @@ private const val RECIPIENTS = "recipients"
 private const val CC = "cc"
 private const val BCC = "bcc"
 private const val ATTACHMENT_PATH = "attachment_path"
+private const val ATTACHMENT_PATHS = "attachment_paths"
 private const val REQUEST_CODE_SEND = 607
 
 class FlutterEmailSenderPlugin(private val registrar: Registrar)
@@ -42,9 +45,15 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
     }
 
     private fun sendEmail(options: MethodCall, callback: Result) {
+        if (options.hasArgument(ATTACHMENT_PATH) && options.hasArgument(ATTACHMENT_PATHS)) {
+            callback.error("invalid_arguments", "$ATTACHMENT_PATH and $ATTACHMENT_PATHS cannot both be present", null);
+            return
+        }
+
         val activity = registrar.activity()
         if (activity == null) {
             callback.error("error", "Activity == null!", null)
+            return
         }
 
         val intent = Intent(Intent.ACTION_SEND)
@@ -95,6 +104,24 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
                 val uri = FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", file)
 
                 intent.putExtra(Intent.EXTRA_STREAM, uri)
+            }
+        }
+
+        if (options.hasArgument(ATTACHMENT_PATHS)) {
+            val attachmentPaths = options.argument<JSONArray>(ATTACHMENT_PATHS)
+            if (attachmentPaths != null) {
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                val uris = ArrayList<Uri>()
+                for (i in 0 until attachmentPaths.length()) {
+                    val attachmentPath = attachmentPaths.getString(i)
+
+                    val file = File(attachmentPath)
+                    val uri = FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", file)
+                    uris.add(uri)
+                }
+
+                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
             }
         }
 
