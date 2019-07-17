@@ -108,14 +108,12 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
         }
 
         if (options.hasArgument(ATTACHMENT_PATHS)) {
-            val attachmentPaths = options.argument<JSONArray>(ATTACHMENT_PATHS)
+            val attachmentPaths = options.argument<ArrayList<String>>(ATTACHMENT_PATHS)
             if (attachmentPaths != null) {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
                 val uris = ArrayList<Uri>()
-                for (i in 0 until attachmentPaths.length()) {
-                    val attachmentPath = attachmentPaths.getString(i)
-
+                for (attachmentPath in attachmentPaths) {
                     val file = File(attachmentPath)
                     val uri = FileProvider.getUriForFile(activity, registrar.context().packageName + ".file_provider", file)
                     uris.add(uri)
