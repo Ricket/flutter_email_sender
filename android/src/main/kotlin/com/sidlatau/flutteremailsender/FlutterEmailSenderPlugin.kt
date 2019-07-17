@@ -60,7 +60,7 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
         val intent = Intent(intentAction)
 
 
-        intent.type = "vnd.android.cursor.dir/email"
+        intent.type = "*/*"
 
 
         if (options.hasArgument(SUBJECT)) {
