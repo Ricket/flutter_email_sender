@@ -18,6 +18,7 @@ class Email {
   final List<String> bcc;
   final String body;
   final String attachmentPath;
+  final List<String> attachmentPaths;
   Email({
     this.subject = '',
     this.recipients = const [],
@@ -25,10 +26,11 @@ class Email {
     this.bcc = const [],
     this.body = '',
     this.attachmentPath,
+    this.attachmentPaths,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    var map = {
       'subject': subject,
       'body': body,
       'recipients': recipients,
@@ -36,5 +38,11 @@ class Email {
       'bcc': bcc,
       'attachment_path': attachmentPath
     };
+
+    if (attachmentPaths != null) {
+      map['attachment_paths'] = attachmentPaths;
+    }
+
+    return map;
   }
 }
