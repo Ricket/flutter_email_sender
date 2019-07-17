@@ -27,7 +27,7 @@ class Email {
     this.body = '',
     this.attachmentPath,
     this.attachmentPaths,
-  });
+  }) : assert(attachmentPath == null || attachmentPaths == null, 'attachmentPath and attachmentPaths cannot both be present');
 
   Map<String, dynamic> toJson() {
     var map = {
@@ -35,10 +35,12 @@ class Email {
       'body': body,
       'recipients': recipients,
       'cc': cc,
-      'bcc': bcc,
-      'attachment_path': attachmentPath
+      'bcc': bcc
     };
 
+    if (attachmentPath != null) {
+      map['attachment_path'] = attachmentPath;
+    }
     if (attachmentPaths != null) {
       map['attachment_paths'] = attachmentPaths;
     }
