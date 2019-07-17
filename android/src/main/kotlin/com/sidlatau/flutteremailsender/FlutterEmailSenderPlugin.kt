@@ -56,7 +56,8 @@ class FlutterEmailSenderPlugin(private val registrar: Registrar)
             return
         }
 
-        val intent = Intent(Intent.ACTION_SEND)
+        val intentAction = if (options.hasArgument(ATTACHMENT_PATHS)) Intent.ACTION_SEND_MULTIPLE else Intent.ACTION_SEND;
+        val intent = Intent(intentAction)
 
 
         intent.type = "vnd.android.cursor.dir/email"
